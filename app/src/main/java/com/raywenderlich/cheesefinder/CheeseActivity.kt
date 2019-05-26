@@ -44,7 +44,7 @@ class CheeseActivity : BaseSearchActivity() {
         super.onStart()
 
         // Create the Observable using the function you created
-        val searchTextObservable = createButtonClickObservable()
+        val searchTextObservable = createTextChangeObservable()
 
         // Subscribe to the Observable with subscribe() and supply a simple Consumer
         searchTextObservable

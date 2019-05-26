@@ -35,6 +35,20 @@ import kotlinx.android.synthetic.main.activity_cheeses.*
 
 class CheeseActivity : BaseSearchActivity() {
 
+    override fun onStart() {
+        super.onStart()
+
+        // Create the Observable using the function you created
+        val searchTextObservable = createButtonClickObservable()
+
+        // Subscribe to the Observable with subscribe() and supply a simple Consumer
+        searchTextObservable.subscribe { query ->
+
+            // Perform the search and show the result
+            showResult(cheeseSearchEngine.search(query))
+        }
+    }
+
     // This function will return an Observable that will emit Strings
     private fun createButtonClickObservable(): Observable<String> {
 

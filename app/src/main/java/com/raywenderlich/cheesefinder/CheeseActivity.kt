@@ -46,8 +46,10 @@ class CheeseActivity : BaseSearchActivity() {
 
         // Subscribe to the Observable with subscribe() and supply a simple Consumer
         searchTextObservable
-                // Code in chain should start on main thread (all code that works with Views should execute on main thread)
-                .subscribeOn(AndroidSchedulers.mainThread())
+                // The next operator in chain will be run on main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                // showProgress() will be called every time a new item is emitted
+                .doOnNext { showProgress() }
                 // Next operator should be called on I/O thread
                 .observeOn(Schedulers.io())
                 // For each search query, return a list of results
@@ -55,6 +57,7 @@ class CheeseActivity : BaseSearchActivity() {
                 // Results are passed to the list on main thread
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
+                    hideProgress()
                     showResult(it)
                 }
     }

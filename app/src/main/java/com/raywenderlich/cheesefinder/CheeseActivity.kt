@@ -30,6 +30,8 @@
 
 package com.raywenderlich.cheesefinder
 
+import android.text.Editable
+import android.text.TextWatcher
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -62,9 +64,40 @@ class CheeseActivity : BaseSearchActivity() {
                 }
     }
 
+    // This function returns an Observable for text changes
+    private fun createTextChangeObservable(): Observable<String> {
+
+        // Create an Observable which takes an ObservableOnSubscribe
+        val textChangeObservable = Observable.create<String> { emitter ->
+
+            // When observer subscribes, make a TextWatcher
+            val textWatcher = object : TextWatcher {
+
+                override fun afterTextChanged(s: Editable?) = Unit
+
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+
+                // When user types and this triggers, you pass new text value to observer
+                override fun onTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                    s?.toString()?.let { emitter.onNext(it) }
+                }
+            }
+
+            // Add the watcher to your TextView by calling addTextChangedListener
+            queryEditText.addTextChangedListener(textWatcher)
+
+            // Remove your watcher
+            emitter.setCancellable {
+                queryEditText.removeTextChangedListener(textWatcher)
+            }
+        }
+
+        // Remove the created observable
+        return textChangeObservable
+    }
+
     // This function will return an Observable that will emit Strings
     private fun createButtonClickObservable(): Observable<String> {
-
         // Create the Observable and provide is an ObservableOnSubscribe
         return Observable.create { emitter ->
 

@@ -30,4 +30,28 @@
 
 package com.raywenderlich.cheesefinder
 
-class CheeseActivity : BaseSearchActivity()
+import io.reactivex.Observable
+import kotlinx.android.synthetic.main.activity_cheeses.*
+
+class CheeseActivity : BaseSearchActivity() {
+
+    // This function will return an Observable that will emit Strings
+    private fun createButtonClickObservable(): Observable<String> {
+
+        // Create the Observable and provide is an ObservableOnSubscribe
+        return Observable.create { emitter ->
+
+            // Setup the listener on the search button
+            searchButton.setOnClickListener {
+
+                // Pass the EditText content to the emitter
+                emitter.onNext(queryEditText.text.toString())
+            }
+
+            // Will be called when Observable is disposed (i.e. Observable is completed or unsubscribed)
+            emitter.setCancellable {
+                searchButton.setOnClickListener(null)
+            }
+        }
+    }
+}

@@ -31,6 +31,9 @@
 package com.raywenderlich.cheesefinder
 
 import io.reactivex.Observable
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_cheeses.*
 
 class CheeseActivity : BaseSearchActivity() {
@@ -42,11 +45,18 @@ class CheeseActivity : BaseSearchActivity() {
         val searchTextObservable = createButtonClickObservable()
 
         // Subscribe to the Observable with subscribe() and supply a simple Consumer
-        searchTextObservable.subscribe { query ->
-
-            // Perform the search and show the result
-            showResult(cheeseSearchEngine.search(query))
-        }
+        searchTextObservable
+                // Code in chain should start on main thread (all code that works with Views should execute on main thread)
+                .subscribeOn(AndroidSchedulers.mainThread())
+                // Next operator should be called on I/O thread
+                .observeOn(Schedulers.io())
+                // For each search query, return a list of results
+                .map { cheeseSearchEngine.search(it) }
+                // Results are passed to the list on main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    showResult(it)
+                }
     }
 
     // This function will return an Observable that will emit Strings

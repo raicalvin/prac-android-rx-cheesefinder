@@ -44,8 +44,11 @@ class CheeseActivity : BaseSearchActivity() {
     override fun onStart() {
         super.onStart()
 
-        // Create the Observable using the function you created
-        val searchTextObservable = createTextChangeObservable()
+        val buttonClickStream = createButtonClickObservable()
+        val textChangeStream = createTextChangeObservable()
+
+        // Merge the two observables into one that emits a String
+        val searchTextObservable = Observable.merge<String>(buttonClickStream, textChangeStream)
 
         // Subscribe to the Observable with subscribe() and supply a simple Consumer
         searchTextObservable

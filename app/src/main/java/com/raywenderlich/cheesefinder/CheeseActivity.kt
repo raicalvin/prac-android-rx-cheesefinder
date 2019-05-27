@@ -37,6 +37,7 @@ import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_cheeses.*
+import java.util.concurrent.TimeUnit
 
 class CheeseActivity : BaseSearchActivity() {
 
@@ -93,7 +94,12 @@ class CheeseActivity : BaseSearchActivity() {
         }
 
         // Remove the created observable
-        return textChangeObservable.filter { it.length >= 2 }
+        return textChangeObservable
+                .filter { it.length >= 2 }
+                // debounce will wait for a specified amount of time after each item for ANOTHER item
+                // If no item happens to be emitted, the last item is finally emitted
+                // debounce waits 1 second before emitting the latest query text
+                .debounce(1000, TimeUnit.MILLISECONDS)
     }
 
     // This function will return an Observable that will emit Strings

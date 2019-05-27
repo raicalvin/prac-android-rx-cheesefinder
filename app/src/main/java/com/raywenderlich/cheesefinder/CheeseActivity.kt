@@ -33,13 +33,15 @@ package com.raywenderlich.cheesefinder
 import android.text.Editable
 import android.text.TextWatcher
 import io.reactivex.Observable
-import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_cheeses.*
 import java.util.concurrent.TimeUnit
 
 class CheeseActivity : BaseSearchActivity() {
+
+    private lateinit var disposable: Disposable
 
     override fun onStart() {
         super.onStart()
@@ -51,7 +53,7 @@ class CheeseActivity : BaseSearchActivity() {
         val searchTextObservable = Observable.merge<String>(buttonClickStream, textChangeStream)
 
         // Subscribe to the Observable with subscribe() and supply a simple Consumer
-        searchTextObservable
+        disposable = searchTextObservable
                 // The next operator in chain will be run on main thread
                 .observeOn(AndroidSchedulers.mainThread())
                 // showProgress() will be called every time a new item is emitted
@@ -121,6 +123,14 @@ class CheeseActivity : BaseSearchActivity() {
             emitter.setCancellable {
                 searchButton.setOnClickListener(null)
             }
+        }
+    }
+
+    @Override
+    override fun onStop() {
+        super.onStop()
+        if (!disposable.isDisposed) {
+            disposable.dispose()
         }
     }
 }

@@ -93,7 +93,7 @@ class CheeseActivity : BaseSearchActivity() {
         }
 
         // Remove the created observable
-        return textChangeObservable
+        return textChangeObservable.filter { it.length >= 2 }
     }
 
     // This function will return an Observable that will emit Strings
